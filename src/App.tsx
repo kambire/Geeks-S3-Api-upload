@@ -265,9 +265,9 @@ function App() {
           <h1>Geeks S3 Api upload</h1>
         </div>
         {!showConfig && credentials && (
-          <button className="icon-btn" onClick={() => setShowConfig(true)} title="Configuración">
+          <button className="icon-btn" onClick={() => setShowConfig(true)} title="Configuration">
             <Settings size={20} />
-            <span>Configuración</span>
+            <span>Settings</span>
           </button>
         )}
       </header>
@@ -275,8 +275,8 @@ function App() {
       <main className="main-content">
         {showConfig ? (
           <div className="config-card glass animate-in">
-            <h2>Configurar Credenciales S3 / R2</h2>
-            <p className="subtitle">Configura el acceso para Cloudflare R2 o cualquier sistema compatible con S3.</p>
+            <h2>Configure S3 / R2 Credentials</h2>
+            <p className="subtitle">Set up access to Cloudflare R2 or any S3-Compatible Storage.</p>
 
             <form onSubmit={saveCredentials} className="config-form">
               <div className="form-group">
@@ -333,7 +333,7 @@ function App() {
           <div className="dashboard animate-in">
             <div className="bucket-info glass">
               <span className="dot"></span>
-              Conectado al bucket: <strong>{credentials?.bucket}</strong>
+              Connected to bucket: <strong>{credentials?.bucket}</strong>
             </div>
 
             <div className="action-panels">
@@ -344,15 +344,15 @@ function App() {
                   onDrop={handleDrop}
                 >
                   <UploadCloud size={48} className="drop-icon" />
-                  <h3>Arrastra archivos aquí</h3>
-                  <p>o selecciona una de las opciones</p>
+                  <h3>Drag & Drop files here</h3>
+                  <p>or select from the options below</p>
 
                   <div className="select-buttons">
                     <button className="btn-outline" onClick={() => fileInputRef.current?.click()}>
-                      <FileIcon size={18} /> Seleccionar Archivos
+                      <FileIcon size={18} /> Select Files
                     </button>
                     <button className="btn-outline" onClick={() => dirInputRef.current?.click()}>
-                      <Folder size={18} /> Seleccionar Carpeta
+                      <Folder size={18} /> Select Folder
                     </button>
                   </div>
 
@@ -378,17 +378,17 @@ function App() {
 
               <div className="tasks-panel glass">
                 <div className="tasks-header">
-                  <h3>Lista de Subida ({tasks.length})</h3>
+                  <h3>Upload Queue ({tasks.length})</h3>
                   <div className="task-actions">
                     <button className="text-btn" onClick={clearCompleted} disabled={isUploading}>
-                      Limpiar completados
+                      Clear Completed
                     </button>
                     <button
                       className="btn-primary btn-small"
                       onClick={startUpload}
                       disabled={isUploading || tasks.filter(t => t.status === 'pending' || t.status === 'error').length === 0}
                     >
-                      {isUploading ? <><Loader2 size={16} className="spin" /> Subiendo...</> : 'Iniciar Subida'}
+                      {isUploading ? <><Loader2 size={16} className="spin" /> Uploading...</> : 'Start Upload'}
                     </button>
                   </div>
                 </div>
@@ -396,7 +396,7 @@ function App() {
                 {tasks.length > 0 && (
                   <div className="global-progress-container mb-1">
                     <div className="global-progress-header">
-                      <span>Progreso General</span>
+                      <span>Overall Progress</span>
                       <span className="accent">{globalProgress}%</span>
                     </div>
                     <div className="global-progress-bar">
@@ -406,14 +406,14 @@ function App() {
                       ></div>
                     </div>
                     <div className="global-progress-stats text-muted">
-                      {tasks.filter(t => t.status === 'completed').length} / {tasks.length} Archivos Completados • {(uploadedBytes / (1024 * 1024)).toFixed(2)} MB de {(totalBytes / (1024 * 1024)).toFixed(2)} MB
+                      {tasks.filter(t => t.status === 'completed').length} / {tasks.length} Files Completed • {(uploadedBytes / (1024 * 1024)).toFixed(2)} MB of {(totalBytes / (1024 * 1024)).toFixed(2)} MB
                     </div>
                   </div>
                 )}
 
                 <div className="tasks-list">
                   {tasks.length === 0 ? (
-                    <div className="empty-state">No hay archivos para subir.</div>
+                    <div className="empty-state">No files queued for upload.</div>
                   ) : (
                     tasks.map((task) => (
                       <div key={task.id} className="task-row-container">
@@ -431,7 +431,7 @@ function App() {
                           </div>
 
                           <div className="task-status">
-                            {task.status === 'pending' && <span className="status-text">Pendiente</span>}
+                            {task.status === 'pending' && <span className="status-text">Pending</span>}
                             {task.status === 'uploading' && <span className="status-text accent">{task.progress}%</span>}
                             {task.status === 'completed' && <CheckCircle size={18} className="success-icon" />}
 
@@ -447,7 +447,7 @@ function App() {
                         {task.status === 'error' && (
                           <div className="task-error-details animate-in">
                             <div className="error-header">
-                              <span className="status-text error">Error de Subida</span>
+                              <span className="status-text error">Upload Failed</span>
                               <button className="remove-btn" onClick={() => removeTask(task.id)}>
                                 <X size={16} />
                               </button>

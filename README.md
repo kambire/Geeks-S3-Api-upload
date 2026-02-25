@@ -1,73 +1,65 @@
-# React + TypeScript + Vite
+# Geeks S3 API Upload Tool
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A powerful, entirely client-side web application to upload files and entire folder structures directly from your browser to Cloudflare R2 or any AWS S3 Compatible storage. 
 
-Currently, two official plugins are available:
+✨ **Features**
+- 🚀 **Bypasses Browser Upload Limits**: Uses `@aws-sdk/lib-storage` Multipart Uploads to break massive files into small 10MB chunks automatically.
+- 📁 **Folder Drag & Drop**: Recursively reads deep directory structures on Drag & Drop and maintains the path in the S3 Bucket.
+- 🔐 **Secure & Serverless**: 100% Client-side. It connects directly to the S3 API without an intermediate server. Credentials stay in your local browser cache ONLY.
+- 💅 **Premium Design**: Dark mode and glassmorphism styling built from scratch.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## Deployment with Vercel
 
-## React Compiler
+This repository is built using React, TypeScript, and Vite, making it extremely easy to deploy directly to Vercel.
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+1. Create a GitHub repository and push this code.
+2. Go to [Vercel](https://vercel.com).
+3. Click on **Add New...** -> **Project**.
+4. Import your newly created GitHub repository.
+5. Vercel will automatically detect that it's a **Vite** project. 
+6. Leave the Build Command as `npm run build` and Output Directory as `dist`.
+7. Click **Deploy**.
 
-## Expanding the ESLint configuration
+In less than a minute, you'll have a public URL for your tool!
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+## VERY IMPORTANT: Cloudflare R2 CORS Configuration
+Since this app runs from a browser, your S3 Provider (e.g., Cloudflare R2) will block the uploads via CORS by default unless you explicitly allow them.
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
+If you deploy this tool, you **MUST** go to your Cloudflare R2 Dashboard -> Select Bucket -> Settings -> **CORS Policy** and paste this exact JSON (Edit the origin with your public Vercel domain if you prefer to be strict):
+
+```json
+[
   {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
+    "AllowedOrigins": [
+      "*"
     ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+    "AllowedMethods": [
+      "GET",
+      "PUT",
+      "POST",
+      "DELETE",
+      "HEAD"
+    ],
+    "AllowedHeaders": [
+      "*"
+    ],
+    "ExposeHeaders": [
+      "ETag"
+    ],
+    "MaxAgeSeconds": 3000
+  }
+]
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+## Running Locally
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+```bash
+# Install dependencies
+npm install
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+# Run development server
+npm run dev
+
+# Build for production
+npm run build
 ```
