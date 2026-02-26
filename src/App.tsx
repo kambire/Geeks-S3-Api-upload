@@ -61,8 +61,20 @@ function App() {
 
   const handleFilesAdded = (files: FileList | File[]) => {
     const newTasks: UploadTask[] = Array.from(files).map((file: any) => {
-      // Si el archivo ya trae una ruta completa (webkitRelativePath de inputs o nuestro custom path)
-      const path = file.customPath || file.webkitRelativePath || file.name;
+      // If the file comes from directory input, it has a webkitRelativePath like "RootFolder/file.txt"
+      // We want to strip the "RootFolder/" from the path.
+      let path = file.customPath || file.name;
+
+      if (!file.customPath && file.webkitRelativePath) {
+        const parts = file.webkitRelativePath.split('/');
+        // If it has multiple parts, remove the first one (the root folder name)
+        if (parts.length > 1) {
+          path = parts.slice(1).join('/');
+        } else {
+          path = file.webkitRelativePath;
+        }
+      }
+
       return {
         id: Math.random().toString(36).substring(7),
         file,
@@ -74,12 +86,11 @@ function App() {
     setTasks((prev) => [...prev, ...newTasks]);
   };
 
-  // Algoritmo recursivo para leer carpetas al momento de arrastrar y soltar (Drag and Drop)
-  const getFilesFromEntry = async (entry: any, path: string = ''): Promise<File[]> => {
+  // Recursive algorithm for folders drop, modified to ignore root folder name
+  const getFilesFromEntry = async (entry: any, path: string = '', isRoot: boolean = false): Promise<File[]> => {
     if (entry.isFile) {
       return new Promise((resolve) => {
         entry.file((file: File) => {
-          // Guardamos la ruta relativa para mantener la estructura de carpetas intacta
           (file as any).customPath = path + file.name;
           resolve([file]);
         });
@@ -87,12 +98,15 @@ function App() {
     } else if (entry.isDirectory) {
       const dirReader = entry.createReader();
       return new Promise<File[]>((resolve) => {
-        // En directorios con muchos archivos readEntries de Chrome puede requerir varias llamadas
         const entries: any[] = [];
         const readEntries = () => {
           dirReader.readEntries(async (results: any[]) => {
             if (!results.length) {
-              const promises = entries.map((subEntry) => getFilesFromEntry(subEntry, path + entry.name + '/'));
+              const promises = entries.map((subEntry) => {
+                // Ignore the root folder name from the path mapping
+                const newPath = isRoot ? path : path + entry.name + '/';
+                return getFilesFromEntry(subEntry, newPath, false);
+              });
               const filesArrays = await Promise.all(promises);
               resolve(filesArrays.flat());
             } else {
@@ -118,8 +132,7 @@ function App() {
         if (item.kind === 'file') {
           const entry = item.webkitGetAsEntry();
           if (entry) {
-            // Si no soltó en raíz sino varias carpetas, mantenemos cada raíz
-            promises.push(getFilesFromEntry(entry));
+            promises.push(getFilesFromEntry(entry, '', true));
           }
         }
       }
