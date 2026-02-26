@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { S3Client } from '@aws-sdk/client-s3';
 import { Upload } from '@aws-sdk/lib-storage';
-import { Settings, UploadCloud, Folder, File as FileIcon, X, CheckCircle, Loader2 } from 'lucide-react';
+import { Settings, UploadCloud, Folder, File as FileIcon, X, CheckCircle, Loader2, RefreshCw } from 'lucide-react';
 import './App.css';
 
 interface Credentials {
@@ -139,6 +139,15 @@ function App() {
 
   const clearCompleted = () => {
     setTasks((prev) => prev.filter((t) => t.status !== 'completed'));
+  };
+
+  const retryTask = (id: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    setTasks((prev) =>
+      prev.map(task =>
+        task.id === id ? { ...task, status: 'pending', error: undefined, progress: 0 } : task
+      )
+    );
   };
 
   const startUpload = async () => {
@@ -445,7 +454,7 @@ function App() {
                               {task.status === 'completed' && <CheckCircle size={18} className="success-icon" />}
 
                               {(task.status === 'pending') && (
-                                <button className="remove-btn" onClick={() => removeTask(task.id)}>
+                                <button className="remove-btn" onClick={(e) => { e.stopPropagation(); removeTask(task.id); }}>
                                   <X size={16} />
                                 </button>
                               )}
@@ -457,9 +466,14 @@ function App() {
                             <div className="task-error-details animate-in">
                               <div className="error-header">
                                 <span className="status-text error">Upload Failed</span>
-                                <button className="remove-btn" onClick={() => removeTask(task.id)}>
-                                  <X size={16} />
-                                </button>
+                                <div className="error-actions" style={{ display: 'flex', gap: '8px' }}>
+                                  <button className="remove-btn" onClick={(e) => retryTask(task.id, e)} title="Retry Upload" style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                                    <RefreshCw size={14} /> Retry
+                                  </button>
+                                  <button className="remove-btn" onClick={(e) => { e.stopPropagation(); removeTask(task.id); }}>
+                                    <X size={16} />
+                                  </button>
+                                </div>
                               </div>
                               <p className="error-message-text">{task.error}</p>
                             </div>
