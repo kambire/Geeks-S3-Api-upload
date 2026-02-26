@@ -415,48 +415,57 @@ function App() {
                   {tasks.length === 0 ? (
                     <div className="empty-state">No files queued for upload.</div>
                   ) : (
-                    tasks.map((task) => (
-                      <div key={task.id} className="task-row-container">
-                        <div className={`task-item ${task.status}`}>
-                          <div className="task-info">
-                            <span className="task-name" title={task.path}>{task.path}</span>
-                            <span className="task-size">{(task.file.size / (1024 * 1024)).toFixed(2)} MB</span>
-                          </div>
-
-                          <div className="task-progress-bar">
-                            <div
-                              className={`task-progress-fill ${task.status}`}
-                              style={{ width: `${task.progress}%` }}
-                            ></div>
-                          </div>
-
-                          <div className="task-status">
-                            {task.status === 'pending' && <span className="status-text">Pending</span>}
-                            {task.status === 'uploading' && <span className="status-text accent">{task.progress}%</span>}
-                            {task.status === 'completed' && <CheckCircle size={18} className="success-icon" />}
-
-                            {(task.status === 'pending') && (
-                              <button className="remove-btn" onClick={() => removeTask(task.id)}>
-                                <X size={16} />
-                              </button>
-                            )}
-                          </div>
-                        </div>
-
-                        {/* Error details row that is always visible if there is an error */}
-                        {task.status === 'error' && (
-                          <div className="task-error-details animate-in">
-                            <div className="error-header">
-                              <span className="status-text error">Upload Failed</span>
-                              <button className="remove-btn" onClick={() => removeTask(task.id)}>
-                                <X size={16} />
-                              </button>
+                    tasks
+                      .filter((task) => {
+                        // Si no estamos subiendo nada, mostramos algunos pendientes o errores
+                        if (!isUploading) {
+                          return task.status !== 'completed';
+                        }
+                        // Si estamos subiendo, solo mostramos los que están activos o fallaron
+                        return task.status === 'uploading' || task.status === 'error';
+                      })
+                      .map((task) => (
+                        <div key={task.id} className="task-row-container">
+                          <div className={`task-item ${task.status}`}>
+                            <div className="task-info">
+                              <span className="task-name" title={task.path}>{task.path}</span>
+                              <span className="task-size">{(task.file.size / (1024 * 1024)).toFixed(2)} MB</span>
                             </div>
-                            <p className="error-message-text">{task.error}</p>
+
+                            <div className="task-progress-bar">
+                              <div
+                                className={`task-progress-fill ${task.status}`}
+                                style={{ width: `${task.progress}%` }}
+                              ></div>
+                            </div>
+
+                            <div className="task-status">
+                              {task.status === 'pending' && <span className="status-text">Pending</span>}
+                              {task.status === 'uploading' && <span className="status-text accent">{task.progress}%</span>}
+                              {task.status === 'completed' && <CheckCircle size={18} className="success-icon" />}
+
+                              {(task.status === 'pending') && (
+                                <button className="remove-btn" onClick={() => removeTask(task.id)}>
+                                  <X size={16} />
+                                </button>
+                              )}
+                            </div>
                           </div>
-                        )}
-                      </div>
-                    ))
+
+                          {/* Error details row that is always visible if there is an error */}
+                          {task.status === 'error' && (
+                            <div className="task-error-details animate-in">
+                              <div className="error-header">
+                                <span className="status-text error">Upload Failed</span>
+                                <button className="remove-btn" onClick={() => removeTask(task.id)}>
+                                  <X size={16} />
+                                </button>
+                              </div>
+                              <p className="error-message-text">{task.error}</p>
+                            </div>
+                          )}
+                        </div>
+                      ))
                   )}
                 </div>
               </div>
